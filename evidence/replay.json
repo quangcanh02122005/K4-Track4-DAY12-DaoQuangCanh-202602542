@@ -6,7 +6,7 @@
     "v_ego": 12.0
   },
   "n_segments": 600,
-  "log_mb": 9.5,
+  "log_mb": 9.4,
   "rerun_identical": true,
   "rerun": {
     "segments": 600,
@@ -97,7 +97,7 @@
     "0.1+(0.2+0.3)": 0.6,
     "float32_sum_forward_50k": 42.32094955444336,
     "float32_sum_reversed_50k": 42.320655822753906,
-    "float32_sum_numpy_pairwise_50k": 42.32032775878906,
+    "float32_sum_numpy_pairwise_50k": 42.32036590576172,
     "relative_difference_forward_vs_reversed": 6.9405741669470444e-06
   },
   "note": "tolerance atol=1e-3 rtol=1e-3 on the commanded acceleration [m/s^2]; log values are rounded to 4 decimals"

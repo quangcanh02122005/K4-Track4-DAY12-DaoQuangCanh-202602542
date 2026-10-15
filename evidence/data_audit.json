@@ -10,11 +10,11 @@
   ],
   "dt_s": 0.1,
   "gap_equals_pos_diff_minus_length": {
-    "mean_offset_m": 4.499999999999993,
-    "max_abs_dev_m": 3.638334078459593e-11
+    "mean_offset_m": 4.499999999999996,
+    "max_abs_dev_m": 3.638600531985503e-11
   },
-  "acc_lead_column_corr_with_dv_dt": 0.045353596290371,
-  "acc_follower_column_corr_with_dv_dt": 0.9290867466753286,
+  "acc_lead_column_corr_with_dv_dt": 0.04535359629037114,
+  "acc_follower_column_corr_with_dv_dt": 0.9290867466753289,
   "lead_speed_quantiles_m_s_p1_p50_p99": [
     0.3442020251325376,
     8.063122305063752,
