@@ -16,11 +16,11 @@
 
 | Bộ điều khiển | L2 vòng hở (m) | Va chạm vòng kín trên log (%) | Quyết định cổng |
 |---|---|---|---|
-| constant-velocity | | | |
-| IDM | | | (baseline) |
-| EgoMLP | | | |
-| PercMLP | | | |
-| PercMLP+ (sau khi sửa) | | | |
+| constant-velocity | 1.259 | 21.2 | chặn |
+| IDM | 1.556 | 0.1 | (baseline) |
+| EgoMLP | 0.755 ± 0.005 | 16.5 .. 30.7 | chặn |
+| PercMLP | 0.616 ± 0.003 | 0.8 .. 3.5 | chặn (R2–R6) |
+| PercMLP+ (sau khi sửa) | 0.837 ± 0.012 | 0.2 .. 0.5 | qua 7/7 |
 
 ## Câu 1 · Dữ liệu
 Bước 0 bạn phát hiện những vấn đề gì ở dữ liệu? Vì sao không dùng cột `Acc_LV`, và bạn thay bằng gì? Bao nhiêu quỹ đạo bị loại vì trùng, và vì sao chia theo quỹ đạo?
@@ -55,7 +55,11 @@ Dán bảng "xe sau phát lại" và "xe sau phản ứng". `T` bạn hiệu ch�
 ## Câu 7 · Cổng phát hành và sửa
 Quy tắc nào chặn PercMLP và nguyên nhân gốc là gì (dẫn số)? Bạn sửa bằng gì và vì sao nó chữa đúng nguyên nhân? Sau khi qua cổng, PercMLP+ có **tốt hơn** IDM không? Nó có nên được phát hành không, và bạn đề xuất làm gì trước khi quyết định?
 
-(trả lời ở đây)
+PercMLP rớt 5/7 quy tắc (`evidence/gate.json`): R2 va chạm trên log 3,5 % (cận trên 4,2 %) so với IDM 0,1 % + 1 điểm; R3 lát phanh 14,3 % so với ngưỡng 5 điểm; R5 độ ổn định giữa seed 0,8 .. 3,5 %; R4 lưới cắt vào 24,4 % vùng tránh được bị đâm (IDM 0 %); R6 xe sau phản ứng 31,8 % lưới (IDM 7,4 %). Có hai nguyên nhân gốc: (a) R4 và R6 là kịch bản **log không chứa** (cắt vào ở tốc độ tiến gần lớn), mô hình chưa từng thấy nên không học được; (b) R2, R3, R5 là **sai số tích luỹ**: sai số nhỏ khi bắt chước đẩy xe vào trạng thái người lái chưa từng đi qua.
+
+Cách sửa (`step_fix`): thêm 20 000 kịch bản cắt vào mô phỏng với nhãn IDM (chữa nguyên nhân a), và 2 vòng DAgger (`augment.dagger_windows`): cho mô hình tự lái trên log huấn luyện, ghi các trạng thái nó tự đi vào, gắn nhãn bằng dự báo 3 s của IDM ở đúng các trạng thái đó rồi huấn luyện lại (chữa nguyên nhân b). Kết quả PercMLP+ (5 seed, cùng quy tắc, không đổi ngưỡng): R2 0,5 % (cận trên 0,8 %), R3 0,6 %, R4 0,1 %, R5 0,2 .. 0,5 %, R6 7,6 % so với IDM 7,4 % => qua 7/7. Ở tốc độ cruise 20 m/s chưa từng thấy khi huấn luyện (<= 16), PercMLP+ còn 0 .. 2,1 % lưới bị đâm so với 17,4 .. 30,2 % của PercMLP, IDM 0 %.
+
+PercMLP+ **chưa tốt hơn** IDM: va chạm trên log 0,2 .. 0,5 % so với 0,1 % của IDM, R6 xấu hơn chút (7,6 % so với 7,4 %). Nó học từ nhãn IDM nên chỉ có thể xấp xỉ thầy, không có tín hiệu để vượt thầy. L2 vòng hở của PercMLP+ (0,837 m) còn **tệ hơn** PercMLP (0,616 m), tức là sửa làm điểm vòng hở xấu đi trong khi lái vòng kín an toàn hơn nhiều: L2 vòng hở không đo được độ an toàn. Qua cổng chỉ nghĩa là không bị chặn bởi các quy tắc này, không phải bằng chứng nên thay IDM. Đề xuất không phát hành thay IDM; trước đó cần giữ IDM làm baseline, kiểm tra thêm trên kịch bản và tốc độ ngoài vùng huấn luyện (kết quả 20 m/s cho thấy còn lỗi), dữ liệu thật nhiều hơn và chạy bóng (shadow mode) so với IDM.
 
 ## Câu 8 · Bài lab này không chứng minh được gì
 Chọn **ít nhất ba** giới hạn quan trọng nhất đối với việc quyết định phát hành và giải thích vì sao mỗi cái làm kết luận của bạn kém chắc chắn. Điều gì cần làm tiếp để thu hẹp khoảng cách đến thế giới thật?
